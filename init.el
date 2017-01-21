@@ -69,38 +69,15 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General Packages
 
-(use-package projectile
-  :ensure t
-  :init
-  (bind-key "C-c p f" 'projectile-find-file)
-  (bind-key "C-c p k" 'projectile-kill-buffers))
-
-(use-package magit
-  :ensure t
-  :init
-  (bind-key "C-c m g" 'magit-status)
-  (bind-key "C-c m b" 'magit-blame)
-  (bind-key "C-c m q" 'magit-blame-quit))
-
 (use-package company
   :ensure t
   :config
   (global-company-mode))
 
-(use-package company-statistics
-  :ensure t
-  :init
-  (add-hook 'after-init-hook 'company-statistics-mode))
-
 (use-package paredit
   :ensure t
   :config
   (autoload 'enable-paredit-mode "paredit" "" t))
-
-(use-package undo-tree
-  :ensure t
-  :init
-  (bind-key "M-_" 'undo-tree-visualize))
 
 (use-package helm
   :ensure t
@@ -110,17 +87,6 @@
 
 (use-package helm-ag
   :ensure t)
-
-(use-package golden-ratio
-  :ensure t
-  :init
-  (golden-ratio-mode 1))
-
-(use-package which-key
-  :ensure t
-  :init
-  (which-key-mode 1))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido
@@ -158,7 +124,6 @@
 	"(do (require 'figwheel-sidecar.repl-api)
              (figwheel-sidecar.repl-api/start-figwheel!)
              (figwheel-sidecar.repl-api/cljs-repl))")
-  ;; (setq cider-cljs-lein-repl "(do (use 'figwheel-sidecar.repl-api)(start-figwheel)(cljs-repl))")
   )
 
 (defun my-clj-mode-hook ()
@@ -184,47 +149,13 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; JS / CoffeeScript
+;; JS
 
 (use-package js2-mode
   :ensure t)
 
-(use-package coffee-mode
-  :ensure t)
-
 (use-package less-css-mode
   :ensure t)
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; PureScript
-
-(use-package psc-ide
-  :ensure t)
-
-(use-package flycheck
-  :ensure t)
-
-(use-package purescript-mode
-  :ensure t
-  :config
-  (add-hook 'purescript-mode-hook
-	    (lambda ()
-	      (psc-ide-mode)
-	      (company-mode)
-	      (flycheck-mode)
-	      (turn-on-purescript-indentation))))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Elm
-
-(use-package elm-mode
-  :ensure t
-  :config (add-hook 'elm-mode-hook
-		    (lambda ()
-		      (linum-mode t))))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Other
