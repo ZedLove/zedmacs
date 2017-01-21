@@ -1,5 +1,6 @@
 *~
 \#*\#
-/helm-adaptive-history
-/elpa/
 /auto-save-list
+/elpa/
+/helm-adaptive-history
+/recentf
