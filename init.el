@@ -102,6 +102,7 @@
 	helm-ff-smart-completion t
 	helm-ff-skip-boring-files t)
   :bind (("C-x C-f" . helm-find-files)
+	 ("C-x k" . helm-buffers-list)
 	 ("C-x b" . helm-buffers-list)
 	 ("C-x C-b" . helm-buffers-list)
 	 ("M-x" . helm-M-x)
@@ -119,6 +120,12 @@
   :ensure t
   :init
   (global-undo-tree-mode))
+
+(use-package ace-window
+  :ensure t
+  :init   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+  :bind   (("C-x o" . ace-window))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido
@@ -234,7 +241,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
+    (ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
