@@ -178,16 +178,16 @@
   :ensure t
   :config
   (add-hook 'clojure-mode-hook #'my-clj-mode-hook)
-  ;; (add-hook 'clojure-mode-hook #'inf-clojure-minor-mode)
   )
 
 
 (use-package clj-refactor
   :ensure t
-  :init (add-hook 'clojure-mode-hook
-		  (lambda ()
-		    (clj-refactor-mode 1)
-		    (cljr-add-keybindings-with-prefix "C-c M-r")))
+  :init
+  (add-hook 'clojure-mode-hook
+	    (lambda ()
+	      (clj-refactor-mode 1)
+	      (cljr-add-keybindings-with-prefix "C-c M-r")))
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
