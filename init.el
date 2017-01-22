@@ -9,6 +9,7 @@
 (blink-cursor-mode -1)
 (fset 'yes-or-no-p 'y-or-n-p)
 
+(add-to-list 'initial-frame-alist '(fullscreen . maximized))
 (global-visual-line-mode -1)
 (global-hl-line-mode 1)
 (line-number-mode t)
@@ -102,7 +103,6 @@
 	helm-ff-smart-completion t
 	helm-ff-skip-boring-files t)
   :bind (("C-x C-f" . helm-find-files)
-	 ("C-x k" . helm-buffers-list)
 	 ("C-x b" . helm-buffers-list)
 	 ("C-x C-b" . helm-buffers-list)
 	 ("M-x" . helm-M-x)
@@ -174,11 +174,6 @@
   (auto-highlight-symbol-mode 1)
   )
 
-(setq cider-cljs-lein-repl
-      "(do (require 'figwheel-sidecar.repl-api)
-           (figwheel-sidecar.repl-api/start-figwheel!)
-           (figwheel-sidecar.repl-api/cljs-repl))")
-
 (use-package clojure-mode
   :ensure t
   :config
@@ -186,6 +181,14 @@
   ;; (add-hook 'clojure-mode-hook #'inf-clojure-minor-mode)
   )
 
+
+(use-package clj-refactor
+  :ensure t
+  :init (add-hook 'clojure-mode-hook
+		  (lambda ()
+		    (clj-refactor-mode 1)
+		    (cljr-add-keybindings-with-prefix "C-c M-r")))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; JS
@@ -241,7 +244,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
+    (ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
