@@ -20,7 +20,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fonts
 (set-face-font 'default "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1")
-(set-face-attribute 'default nil :height 135)
+(set-face-attribute 'default nil :height 115)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Mac setup
@@ -206,17 +206,13 @@
   :ensure t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; unset stupid suspend keystokes
+;; unset stupid suspend keybindings
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
 
-(global-set-key (kbd "C-+") 'text-scale-increase)
-(global-set-key (kbd "C--") 'text-scale-decrease)
-
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Custom Fns
+
 (defun sudo-edit (&optional arg)
   "Stolen from Andrew Keedle.
    Edit currently visited file as root.
@@ -229,9 +225,12 @@
                          (ido-read-file-name "Find file(as root): ")))
     (find-alternate-file (concat "/sudo:root@localhost:" buffer-file-name))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Custom Keybindings
+
 (global-set-key (kbd "C-x C-r") 'sudo-edit)
-
-
+(global-set-key (kbd "C-+") 'text-scale-increase)
+(global-set-key (kbd "C--") 'text-scale-decrease)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
