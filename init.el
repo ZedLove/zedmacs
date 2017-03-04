@@ -123,9 +123,8 @@
 
 (use-package ace-window
   :ensure t
-  :init   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
-  :bind   (("C-x o" . ace-window))
-  )
+  :init   (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?\; ?\'))
+  :bind   (("C-x o" . ace-window)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido
@@ -138,10 +137,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Clojure config-changed-event
-
-(use-package eldoc
-  :ensure t)
+;; General Lispy modes
 
 (use-package rainbow-delimiters
   :ensure t)
@@ -149,10 +145,23 @@
 (use-package highlight-parentheses
   :ensure t)
 
-(defun my-cider-mode-hook ()
+(defun lispy-modes ()
   (paredit-mode 1)
   (rainbow-delimiters-mode 1)
+  (highlight-parentheses-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Clojure
+
+(use-package eldoc
+  :ensure t)
+
+(defun clojure-modes ()
+  (lispy-modes)
   (eldoc-mode 1))
+
+(defun my-cider-mode-hook ()
+  (clojure-modes))
 
 (use-package cider
   :ensure t
@@ -162,29 +171,33 @@
   (setq cider-cljs-lein-repl
 	"(do (require 'figwheel-sidecar.repl-api)
              (figwheel-sidecar.repl-api/start-figwheel!)
-             (figwheel-sidecar.repl-api/cljs-repl))")
+             (figwheel-sidecar.repl-api/cljs-repl))"))
+
+(use-package clj-refactor
+  :ensure t)
+
+(defun my-clojure-mode-hook ()
+  (clojure-modes)
+  (clj-refactor-mode 1)
+  (cljr-add-keybindings-with-prefix "C-c M-r")
+  ;; (cljr-add-keybindings-with-prefix "C-c C-m"))))
   )
 
 (use-package clojure-mode
   :ensure t
   :config
-  (add-hook 'clojure-mode-hook
-	    (lambda ()
-	      (paredit-mode 1)
-	      (eldoc-mode 1)
-	      (rainbow-delimiters-mode 1)
-	      (highlight-parentheses-mode 1)
-	      ;; (cljr-add-keybindings-with-prefix "C-c C-m"))))
-	      )))
+  (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; RACKET
 
-(use-package clj-refactor
+(defun my-racket-mode-hook ()
+  (lispy-modes))
+
+(use-package geiser
   :ensure t
-  :init
-  (add-hook 'clojure-mode-hook
-	    (lambda ()
-	      (clj-refactor-mode 1)
-	      (cljr-add-keybindings-with-prefix "C-c M-r"))))
+  :config
+  (add-hook 'scheme-mode-hook #'my-racket-mode-hook))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; JS
@@ -199,14 +212,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; E-Lisp
 
-(add-hook 'emacs-lisp-mode-hook
-	  (lambda ()
-	      (paredit-mode 1)
-	      (eldoc-mode 1)
-	      (rainbow-delimiters-mode 1)
-	      (highlight-parentheses-mode 1)))
-	  
+(defun my-elisp-mode-hook ()
+  (lispy-modes))
 
+(add-hook 'emacs-lisp-mode-hook #'my-elisp-mode-hook)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; unset stupid suspend keybindings
@@ -246,7 +255,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
+    (bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
