@@ -17,10 +17,14 @@
 (size-indication-mode t)
 (linum-mode -1)
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fonts
+
+;; TODO : make this flexible if the font isn't available
 (set-face-font 'default "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1")
-(set-face-attribute 'default nil :height 145)
+(set-face-attribute 'default nil :height 115)
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Mac setup
@@ -56,7 +60,7 @@
 
 (when (boundp 'package-pinned-packages)
   (setq package-pinned-packages
-	'((cider        . "melpa-stable"))))
+	'((cider . "melpa-stable"))))
 
 (package-initialize)
 
@@ -123,8 +127,9 @@
 
 (use-package ace-window
   :ensure t
-  :init   (setq aw-keys '(?a ?s ?d ?f ?j ?k ?l ?\; ?\'))
+  :init   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind   (("C-x o" . ace-window)))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ido
@@ -137,7 +142,10 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; General Lispy modes
+;; Clojure config-changed-event
+
+(use-package eldoc
+  :ensure t)
 
 (use-package rainbow-delimiters
   :ensure t)
@@ -145,23 +153,10 @@
 (use-package highlight-parentheses
   :ensure t)
 
-(defun lispy-modes ()
+(defun my-cider-mode-hook ()
   (paredit-mode 1)
   (rainbow-delimiters-mode 1)
-  (highlight-parentheses-mode 1))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Clojure
-
-(use-package eldoc
-  :ensure t)
-
-(defun clojure-modes ()
-  (lispy-modes)
   (eldoc-mode 1))
-
-(defun my-cider-mode-hook ()
-  (clojure-modes))
 
 (use-package cider
   :ensure t
@@ -173,31 +168,27 @@
              (figwheel-sidecar.repl-api/start-figwheel!)
              (figwheel-sidecar.repl-api/cljs-repl))"))
 
-(use-package clj-refactor
-  :ensure t)
-
-(defun my-clojure-mode-hook ()
-  (clojure-modes)
-  (clj-refactor-mode 1)
-  (cljr-add-keybindings-with-prefix "C-c M-r")
-  ;; (cljr-add-keybindings-with-prefix "C-c C-m"))))
-  )
-
 (use-package clojure-mode
   :ensure t
   :config
-  (add-hook 'clojure-mode-hook #'my-clojure-mode-hook))
+  (add-hook 'clojure-mode-hook
+	    (lambda ()
+	      (paredit-mode 1)
+	      (eldoc-mode 1)
+	      (rainbow-delimiters-mode 1)
+	      (highlight-parentheses-mode 1)
+	      ;; (cljr-add-keybindings-with-prefix "C-c C-m"))))
+	      )))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; RACKET
 
-(defun my-racket-mode-hook ()
-  (lispy-modes))
-
-(use-package geiser
+(use-package clj-refactor
   :ensure t
-  :config
-  (add-hook 'scheme-mode-hook #'my-racket-mode-hook))
+  :init
+  (add-hook 'clojure-mode-hook
+	    (lambda ()
+	      (clj-refactor-mode 1)
+	      (cljr-add-keybindings-with-prefix "C-c M-r"))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; JS
