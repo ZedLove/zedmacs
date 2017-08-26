@@ -90,11 +90,6 @@
   :config
   (global-company-mode))
 
-(use-package paredit
-  :ensure t
-  :config
-  (autoload 'enable-paredit-mode "paredit" "" t))
-
 (use-package helm
   :ensure t   
   :init
@@ -142,10 +137,12 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Clojure config-changed-event
+;; General Lispy Modes
 
-(use-package eldoc
-  :ensure t)
+(use-package paredit
+  :ensure t
+  :config
+  (autoload 'enable-paredit-mode "paredit" "" t))
 
 (use-package rainbow-delimiters
   :ensure t)
@@ -153,9 +150,19 @@
 (use-package highlight-parentheses
   :ensure t)
 
-(defun my-cider-mode-hook ()
+
+(defun lispy-modes ()
   (paredit-mode 1)
   (rainbow-delimiters-mode 1)
+  (highlight-parentheses-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Clojure 
+
+(use-package eldoc
+  :ensure t)
+
+(defun my-cider-mode-hook ()
   (eldoc-mode 1))
 
 (use-package cider
@@ -173,10 +180,8 @@
   :config
   (add-hook 'clojure-mode-hook
 	    (lambda ()
-	      (paredit-mode 1)
+	      (lispy-modes)
 	      (eldoc-mode 1)
-	      (rainbow-delimiters-mode 1)
-	      (highlight-parentheses-mode 1)
 	      ;; (cljr-add-keybindings-with-prefix "C-c C-m"))))
 	      )))
 
