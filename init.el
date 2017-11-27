@@ -21,20 +21,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fonts
 
-;; TODO : make this flexible if the font isn't available
-(set-face-font 'default "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1")
-(set-face-attribute 'default nil :height 115)
+(when (member "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1" (font-family-list))
+  (set-face-font 'default "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1")
+  (set-face-attribute 'default nil :height 115))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Mac setup
-;; TODO : use this?
-;; (when (string= system-name "keeds-mbp.local")
-;;   (setenv "PATH" (concat (getenv "PATH") ":/Users/keeds/bin"))
-;;   (setq exec-path (append exec-path '("/Users/keeds/bin")))
-;;   (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
-;;   (setq exec-path (append exec-path '("/usr/local/bin")))
-;;   (set-face-attribute 'default nil :height 140))
+
+(when (or (string= system-name "zakbook-pro.local")
+	  (string= system-name "SYS0803.local"))
+  (setenv "PATH" (concat (getenv "PATH") ":/Users/zaknitsch/bin"))
+  (setq exec-path (append exec-path '("/Users/zaknitsch/bin")))
+  (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
+  (setq exec-path (append exec-path '("/usr/local/bin")))
+  (set-face-attribute 'default nil :height 140))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -150,7 +151,6 @@
 (use-package highlight-parentheses
   :ensure t)
 
-
 (defun lispy-modes ()
   (paredit-mode 1)
   (rainbow-delimiters-mode 1)
@@ -182,8 +182,8 @@
 	    (lambda ()
 	      (lispy-modes)
 	      (eldoc-mode 1)
-	      ;; (cljr-add-keybindings-with-prefix "C-c C-m"))))
-	      )))
+	      ;; TODO - see if you want to keep this \/
+	      (cljr-add-keybindings-with-prefix "C-c C-m"))))
 
 
 (use-package clj-refactor
@@ -196,10 +196,32 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; JS
+;; JS / LESS / ETC
 
 (use-package js2-mode
-  :ensure t)
+  :ensure t
+  :init 
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+  ;; Better imenu
+  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
+
+
+(use-package js2-refactor
+  :ensure t
+  :init
+  (add-hook 'js2-mode-hook #'js2-refactor-mode)
+  (js2r-add-keybindings-with-prefix "C-c C-r")
+  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
+  ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
+  ;; unbind it.
+  (define-key js-mode-map (kbd "M-.") nil))
+
+(use-package xref-js2
+  :ensure t
+  :init
+  (add-hook 'js2-mode-hook
+	    (lambda () (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
+
 
 (use-package less-css-mode
   :ensure t)
