@@ -97,7 +97,8 @@
   (require 'helm-config)
   (helm-mode 1)
   (helm-autoresize-mode 1)
-  (helm-push-mark-mode 1)
+  ;; TODO - figure out why this is void
+  ;;(helm-push-mark-mode 1)
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
   (setq helm-scroll-amount 4
 	 helm-ff-smart-completion t
