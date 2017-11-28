@@ -17,7 +17,6 @@
 (size-indication-mode t)
 (linum-mode -1)
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fonts
 
@@ -114,8 +113,7 @@
 
 (use-package helm-swoop
   :ensure t
-  :init
-  (bind-key "M-i" 'helm-swoop))
+  :bind (("M-i" . helm-swoop)))
 
 (use-package undo-tree
   :ensure t
@@ -204,7 +202,9 @@
   :init 
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   ;; Better imenu
-  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
+  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
+  (rainbow-delimiters-mode 1)
+  (highlight-parentheses-mode 1))
 
 
 (use-package js2-refactor
