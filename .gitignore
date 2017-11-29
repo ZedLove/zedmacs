@@ -6,4 +6,4 @@
 /helm-adaptive-history
 /recentf
 tramp
-ido.*
+projectile*

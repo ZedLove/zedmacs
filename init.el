@@ -90,6 +90,18 @@
   :config
   (global-company-mode))
 
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-global-mode)
+  (setq projectile-completion-system 'helm)
+  (helm-projectile-on))
+
+(use-package magit
+  :ensure t
+  :init
+  (global-set-key (kbd "C-x g") 'magit-status))
+
 (use-package helm
   :ensure t   
   :init
@@ -103,12 +115,12 @@
 	 helm-ff-smart-completion t
 	 helm-ff-skip-boring-files t)
   :bind (("C-x C-f" . helm-find-files)
-	 ("C-x b" . helm-buffers-list)
+	 ("C-x b"   . helm-buffers-list)
 	 ("C-x C-b" . helm-buffers-list)
-	 ("M-x" . helm-M-x)
-	 ("M-y" . helm-show-kill-ring)))
+	 ("M-x"     . helm-M-x)
+	 ("M-y"     . helm-show-kill-ring)))
 
-(use-package helm-ag
+(use-package helm-projectile
   :ensure t)
 
 (use-package helm-swoop
@@ -124,17 +136,6 @@
   :ensure t
   :init   (setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
   :bind   (("C-x o" . ace-window)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ido
-
-(use-package ido
-  :config
-  (setq ido-enable-flex-matching t)
-  (setq ido-everywhere t)
-  (ido-mode 1))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; General Lispy Modes
