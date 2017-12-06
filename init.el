@@ -22,7 +22,7 @@
 
 (when (member "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1" (font-family-list))
   (set-face-font 'default "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1")
-  (set-face-attribute 'default nil :height 115))
+  (set-face-attribute 'default nil :height 110))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -34,7 +34,7 @@
   (setq exec-path (append exec-path '("/Users/zaknitsch/bin")))
   (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
   (setq exec-path (append exec-path '("/usr/local/bin")))
-  (set-face-attribute 'default nil :height 140))
+  (set-face-attribute 'default nil :height 120))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -50,12 +50,12 @@
 
 (require 'package)
 
-;; (setq package-enable-at-startup nil)
+(setq package-enable-at-startup nil)
 
 (setq package-archives
-      '(("ELPA" . "http://tromey.com/elpa/")
-	("gnu" . "http://elpa.gnu.org/packages/")
-	("melpa" . "http://melpa.org/packages/")
+      '(("ELPA"         . "http://tromey.com/elpa/")
+	("gnu"          . "http://elpa.gnu.org/packages/")
+	("melpa"        . "http://melpa.org/packages/")
 	("melpa-stable" . "http://stable.melpa.org/packages/")))
 
 (when (boundp 'package-pinned-packages)
@@ -99,8 +99,20 @@
 
 (use-package magit
   :ensure t
+  :bind
+  (("C-x g"   . magit-status)
+   ("C-x M-g" . magit-dispatch-popup)))
+
+(use-package magit-gerrit
+  :ensure t
   :init
-  (global-set-key (kbd "C-x g") 'magit-status))
+  (setq-default magit-gerrit-ssh-creds "znitsch@partners.macadamian.com")
+  (setq-default magit-gerrit-remote "origin")
+  :bind
+  (("C-x M-r" . magit-gerrit-popup)))
+
+(use-package ag
+  :ensure t)
 
 (use-package helm
   :ensure t   
@@ -126,6 +138,9 @@
 (use-package helm-swoop
   :ensure t
   :bind (("M-i" . helm-swoop)))
+
+(use-package helm-ag
+  :ensure t)
 
 (use-package undo-tree
   :ensure t
