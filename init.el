@@ -1,4 +1,3 @@
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Basic Emacs
 
@@ -54,9 +53,9 @@
 
 (setq package-archives
       '(("ELPA"         . "http://tromey.com/elpa/")
-	("gnu"          . "http://elpa.gnu.org/packages/")
-	("melpa"        . "http://melpa.org/packages/")
-	("melpa-stable" . "http://stable.melpa.org/packages/")))
+        ("gnu"          . "http://elpa.gnu.org/packages/")
+        ("melpa"        . "http://melpa.org/packages/")
+        ("melpa-stable" . "http://stable.melpa.org/packages/")))
 
 (when (boundp 'package-pinned-packages)
   (setq package-pinned-packages
@@ -209,23 +208,30 @@
 	      (clj-refactor-mode 1)
 	      (cljr-add-keybindings-with-prefix "C-c M-r"))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; PYTHON
+
+(use-package elpy
+  :ensure t
+  :init
+  (elpy-enable))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; JS / LESS / ETC
+;; WEB
 
 (use-package js2-mode
   :ensure t
   :init 
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
   ;; Better imenu
-  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode)
-  (rainbow-delimiters-mode 1)
-  (highlight-parentheses-mode 1))
+  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
 
 
 (use-package js2-refactor
   :ensure t
   :init
+  (rainbow-delimiters-mode 1)
+  (highlight-parentheses-mode 1)
   (add-hook 'js2-mode-hook #'js2-refactor-mode)
   (js2r-add-keybindings-with-prefix "C-c C-r")
   (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
@@ -243,6 +249,49 @@
 (use-package less-css-mode
   :ensure t)
 
+(use-package web-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("/some/react/path/.*\\.js[x]?\\'" . web-mode))
+  (setq web-mode-content-types-alist
+        '(("json" . "/some/path/.*\\.api\\'")
+          ("xml"  . "/other/path/.*\\.api\\'")
+          ("jsx"  . "/some/react/path/.*\\.js[x]?\\'")))
+  (setq web-mode-engines-alist
+        '(("php"    . "\\.phtml\\'")
+          ("blade"  . "\\.blade\\.")))
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  :init
+  (setq-default indent-tabs-mode nil)
+	(setq-default tab-width 2)
+	(setq indent-line-function 'insert-tab))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; TypeScript
+
+(use-package tide
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.ts\\'" . tide-mode))
+  :init
+  (interactive)
+  (tide-setup)
+  (flycheck-mode +1)
+  (setq flycheck-check-syntax-automatically '(save mode-enabled))
+  (eldoc-mode +1)
+  (tide-hl-identifier-mode +1)
+  ;; company is an optional dependency
+  (company-mode +1)
+
+  ;; aligns annotation to the right hand side
+  (setq company-tooltip-align-annotations t)
+  ;; formats the buffer before saving
+  (add-hook 'before-save-hook 'tide-format-before-save)
+  
+  (add-hook 'typescript-mode-hook #'setup-tide-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; E-Lisp
@@ -256,6 +305,13 @@
 ;; unset stupid suspend keybindings
 (global-unset-key (kbd "C-z"))
 (global-unset-key (kbd "C-x C-z"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Custom Plugins
+
+;; Robot Framework Mode
+(load-file ".emacs.d/plugins/robot-mode.el")
+(add-to-list 'auto-mode-alist '("\\.robot\\'" . robot-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Custom Fns
@@ -290,7 +346,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
+    (elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
