@@ -126,10 +126,10 @@
 	 helm-ff-smart-completion t
 	 helm-ff-skip-boring-files t)
   :bind (("C-x C-f" . helm-find-files)
-	 ("C-x b"   . helm-buffers-list)
-	 ("C-x C-b" . helm-buffers-list)
-	 ("M-x"     . helm-M-x)
-	 ("M-y"     . helm-show-kill-ring)))
+	       ("C-x b"   . helm-buffers-list)
+	       ("C-x C-b" . helm-buffers-list)
+	       ("M-x"     . helm-M-x)
+	       ("M-y"     . helm-show-kill-ring)))
 
 (use-package helm-projectile
   :ensure t)
@@ -214,7 +214,9 @@
 (use-package elpy
   :ensure t
   :init
-  (elpy-enable))
+  (elpy-enable)
+  ;; disable to preserve projectile kbd
+  (define-key elpy-mode-map (kbd "C-c C-p") nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; WEB
@@ -346,7 +348,8 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider))))
+    (elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider)))
+ '(python-shell-interpreter "python3"))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
