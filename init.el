@@ -27,12 +27,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Mac setup
 
-(when (or (string= system-name "zakbook-pro.local")
-	  (string= system-name "SYS0803.local"))
+(when (string= system-name "zakbook-pro.local")
   (setenv "PATH" (concat (getenv "PATH") ":/Users/zaknitsch/bin"))
   (setq exec-path (append exec-path '("/Users/zaknitsch/bin")))
   (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
   (setq exec-path (append exec-path '("/usr/local/bin")))
+  ;; hide java icon in OSX dock
+  (setenv "LEIN_JVM_OPTS" "-Dapple.awt.UIElement=true")
   (set-face-attribute 'default nil :height 120))
 
 
@@ -166,6 +167,7 @@
   :ensure t)
 
 (defun lispy-modes ()
+  ;; TODO - this doesn't work as expected
   (paredit-mode 1)
   (rainbow-delimiters-mode 1)
   (highlight-parentheses-mode 1))
@@ -177,7 +179,12 @@
   :ensure t)
 
 (defun my-cider-mode-hook ()
-  (eldoc-mode 1))
+  (eldoc-mode 1)
+  ;; TODO - fix lispy-modes
+  ;; (lispy-modes)
+  (paredit-mode 1)
+  (rainbow-delimiters-mode 1)
+  (highlight-parentheses-mode 1))
 
 (use-package cider
   :ensure t
@@ -194,14 +201,18 @@
   :config
   (add-hook 'clojure-mode-hook
 	    (lambda ()
-	      (lispy-modes)
+	      ;; TODO - fix lispy modes
+	      ;;(lispy-modes)
+	      (paredit-mode 1)
+	      (rainbow-delimiters-mode 1)
+	      (highlight-parentheses-mode 1)
 	      (eldoc-mode 1)
 	      ;; TODO - see if you want to keep this \/
 	      (cljr-add-keybindings-with-prefix "C-c C-m"))))
 
 
 (use-package clj-refactor
-  :ensure t
+  :ensure f ;; incompatible past Cider 0.18.0
   :init
   (add-hook 'clojure-mode-hook
 	    (lambda ()
@@ -275,7 +286,7 @@
 ;; TypeScript
 
 (use-package tide
-  :ensure t
+  :ensure f
   :config
   (add-to-list 'auto-mode-alist '("\\.ts\\'" . tide-mode))
   :init
@@ -299,7 +310,11 @@
 ;; E-Lisp
 
 (defun my-elisp-mode-hook ()
-  (lispy-modes))
+  ;; TODO - fix lispy modes
+  ;;(lispy-modes)
+  (paredit-mode 1)
+  (rainbow-delimiters-mode 1)
+  (highlight-parentheses-mode 1))
 
 (add-hook 'emacs-lisp-mode-hook #'my-elisp-mode-hook)
 
@@ -348,7 +363,7 @@
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
    (quote
-    (elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics cider)))
+    (elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
  '(python-shell-interpreter "python3"))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
