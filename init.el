@@ -17,6 +17,12 @@
 (linum-mode -1)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; get around failing package signatures
+;; COMMENT OUT BY DEFAULT
+
+;; (setq package-check-signature nil)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Fonts
 
 (when (member "-adobe-Source Code Pro-normal-normal-normal-*-*-*-*-*-m-0-iso10646-1" (font-family-list))
@@ -32,7 +38,7 @@
   (setq exec-path (append exec-path '("/Users/zaknitsch/bin")))
   (setenv "PATH" (concat (getenv "PATH") ":/usr/local/bin"))
   (setq exec-path (append exec-path '("/usr/local/bin")))
-  ;; hide java icon in OSX dock
+  ;; hide java icon in OSX dock (TODO: doesn't work?)
   (setenv "LEIN_JVM_OPTS" "-Dapple.awt.UIElement=true")
   (set-face-attribute 'default nil :height 120))
 
@@ -41,8 +47,8 @@
 ;; NPM
 ;; TODO : use this?
 
-;;(setenv "PATH" (concat (getenv "PATH") ":/home/akeedle/.nvm/versions/node/v4.4.7/bin"))
-;;(setq exec-path (append exec-path '("/home/akeedle/.nvm/versions/node/v4.4.7/bin")))
+;;(setenv "PATH" (concat (getenv "PATH") ":/home/zaknitsch/.nvm/versions/node/v4.4.7/bin"))
+;;(setq exec-path (append exec-path '("/home/zaknitsch/.nvm/versions/node/v4.4.7/bin")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -53,10 +59,10 @@
 (setq package-enable-at-startup nil)
 
 (setq package-archives
-      '(("ELPA"         . "http://tromey.com/elpa/")
-        ("gnu"          . "http://elpa.gnu.org/packages/")
-        ("melpa"        . "http://melpa.org/packages/")
-        ("melpa-stable" . "http://stable.melpa.org/packages/")))
+      '(("ELPA"         . "https://tromey.com/elpa/")
+        ("gnu"          . "https://elpa.gnu.org/packages/")
+        ("melpa"        . "https://melpa.org/packages/")
+        ("melpa-stable" . "https://stable.melpa.org/packages/")))
 
 (when (boundp 'package-pinned-packages)
   (setq package-pinned-packages
@@ -106,7 +112,7 @@
 (use-package magit-gerrit
   :ensure t
   :init
-  (setq-default magit-gerrit-ssh-creds "znitsch@partners.macadamian.com")
+  (setq-default magit-gerrit-ssh-creds "")
   (setq-default magit-gerrit-remote "origin")
   :bind
   (("C-x M-r" . magit-gerrit-popup)))
@@ -164,13 +170,21 @@
   :ensure t)
 
 (use-package highlight-parentheses
-  :ensure t)
+  :ensure t
+  :init (global-highlight-parentheses-mode 1))
 
 (defun lispy-modes ()
   ;; TODO - this doesn't work as expected
   (paredit-mode 1)
-  (rainbow-delimiters-mode 1)
-  (highlight-parentheses-mode 1))
+  (rainbow-delimiters-mode 1))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; SML/NJ
+
+(use-package sml-mode
+  :ensure t
+  :init 
+  (add-to-list 'auto-mode-alist '("\\.sml\\'" . sml-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Clojure 
@@ -190,11 +204,42 @@
   :ensure t
   :config
   (add-hook 'cider-repl-mode-hook #'my-cider-mode-hook)
-  (add-hook 'cider-mode-hook #'my-cider-mode-hook)
-  (setq cider-cljs-lein-repl
-	"(do (require 'figwheel-sidecar.repl-api)
-             (figwheel-sidecar.repl-api/start-figwheel!)
-             (figwheel-sidecar.repl-api/cljs-repl))"))
+  (add-hook 'cider-mode-hook #'my-cider-mode-hook))
+
+(defun powmato-client ()
+  (interactive)
+  (set-variable 'cider-lein-parameters "with-profiles +client,+client-dev repl :headless")
+  (cider-jack-in-cljs '(:jack-in-cmd 'lein))
+  (set-variable 'cider-lein-parameters "repl :headless"))
+
+(defun powmato-server ()
+  (interactive)
+  (set-variable 'cider-lein-parameters "with-profiles +server,+server-dev repl :headless")
+  (cider-jack-in '(:jack-in-cmd 'lein))
+  (set-variable 'cider-lein-parameters "repl :headless"))
+
+(defun jackmato ()
+  (interactive)
+  (set-variable 'cider-lein-parameters "with-profiles +server,+server-dev repl :headless")
+  (cider-jack-in '(:jack-in-cmd 'lein))
+  (set-variable 'cider-lein-parameters "with-profiles +client,+client-dev repl :headless")
+  (cider-jack-in-cljs '(:jack-in-cmd 'lein))
+  (set-variable 'cider-lein-parameters "repl :headless"))
+
+(defun start-cider-repl-with-profiles ()
+  (interactive)
+  (letrec ((profiles (read-string "Enter profile names (including +): "))
+           (lein-params (concat "with-profiles " profiles " repl :headless")))
+    (message "lein-params set to: %s" lein-params)
+    (set-variable 'cider-lein-parameters lein-params)
+    (cider-jack-in '(:jack-in-cmd 'lein))))
+
+;; (defun start-cider-repl-with-profile (profile)
+;;   (interactive "sEnter profile name: ")
+;;   (letrec ((lein-params (concat "with-profile +" profile " repl :headless")))
+;;     (message "lein-params set to: %s" lein-params)
+;;     (set-variable 'cider-lein-parameters lein-params)
+;;     (cider-jack-in 'lein)))
 
 (use-package clojure-mode
   :ensure t
@@ -208,16 +253,17 @@
 	      (highlight-parentheses-mode 1)
 	      (eldoc-mode 1)
 	      ;; TODO - see if you want to keep this \/
-	      (cljr-add-keybindings-with-prefix "C-c C-m"))))
+	      ;;(cljr-add-keybindings-with-prefix "C-c C-m")
+        )))
 
 
-(use-package clj-refactor
-  :ensure f ;; incompatible past Cider 0.18.0
-  :init
-  (add-hook 'clojure-mode-hook
-	    (lambda ()
-	      (clj-refactor-mode 1)
-	      (cljr-add-keybindings-with-prefix "C-c M-r"))))
+;; (use-package clj-refactor
+;;   :ensure f ;; incompatible past Cider 0.18.0
+;;   :init
+;;   (add-hook 'clojure-mode-hook
+;;             (lambda ()
+;;               (clj-refactor-mode 1)
+;;               (cljr-add-keybindings-with-prefix "C-c M-r"))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PYTHON
@@ -285,26 +331,26 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; TypeScript
 
-(use-package tide
-  :ensure f
-  :config
-  (add-to-list 'auto-mode-alist '("\\.ts\\'" . tide-mode))
-  :init
-  (interactive)
-  (tide-setup)
-  (flycheck-mode +1)
-  (setq flycheck-check-syntax-automatically '(save mode-enabled))
-  (eldoc-mode +1)
-  (tide-hl-identifier-mode +1)
-  ;; company is an optional dependency
-  (company-mode +1)
+;; (use-package tide
+;;   :ensure f
+;;   :config
+;;   (add-to-list 'auto-mode-alist '("\\.ts\\'" . tide-mode))
+;;   :init
+;;   (interactive)
+;;   (tide-setup)
+;;   (flycheck-mode +1)
+;;   (setq flycheck-check-syntax-automatically '(save mode-enabled))
+;;   (eldoc-mode +1)
+;;   (tide-hl-identifier-mode +1)
+;;   ;; company is an optional dependency
+;;   (company-mode +1)
 
-  ;; aligns annotation to the right hand side
-  (setq company-tooltip-align-annotations t)
-  ;; formats the buffer before saving
-  (add-hook 'before-save-hook 'tide-format-before-save)
+;;   ;; aligns annotation to the right hand side
+;;   (setq company-tooltip-align-annotations t)
+;;   ;; formats the buffer before saving
+;;   (add-hook 'before-save-hook 'tide-format-before-save)
   
-  (add-hook 'typescript-mode-hook #'setup-tide-mode))
+;;   (add-hook 'typescript-mode-hook #'setup-tide-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; E-Lisp
@@ -351,6 +397,7 @@
 (global-set-key (kbd "C-x C-r") 'sudo-edit)
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
+(global-set-key (kbd "C-;") 'comment-or-uncomment-region)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -361,9 +408,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(js-indent-level 2)
  '(package-selected-packages
    (quote
-    (elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider cljr-helm ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
+    (sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
  '(python-shell-interpreter "python3"))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
