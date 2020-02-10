@@ -283,7 +283,7 @@
 (use-package prettier-js
   :ensure t
   :init
-  (add-hook 'js2-mode-hook 'prettier-js-mode)
+  (add-hook 'vue-mode-hook 'prettier-js-mode)
   (add-hook 'web-mode-hook 'prettier-js-mode)
   (setq prettier-js-args
         '("--trailing-comma"        "none"
@@ -317,22 +317,13 @@
          "\\.erb\\'"
          "\\.mustache\\'"
          "\\.djhtml\\'"
-         "\\.js\\'"
-         "\\.ts\\'"
-         "\\.jsx\\'"
-         "\\.tsx\\'")
+         "\\.jsx?\\'"
+         "\\.tsx?\\'"
+         "\\.vue\\'")
   :config
   ;; configure jsx-tide checker to run after your default jsx checker
   (flycheck-add-mode 'javascript-eslint 'web-mode)
   (flycheck-add-mode 'typescript-tslint 'web-mode))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;; Vue
-
-(use-package vue-mode
-  :ensure t
-  :config
-  (setq mmm-submode-decoration-level 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tide
@@ -353,7 +344,7 @@
     (company-mode +1))
 
   
-(use-package tide                       ; https://github.com/ananthakumaran/tide
+(use-package tide     ;; https://github.com/ananthakumaran/tide
   :init
   (add-hook 'rjsx-mode-hook #'setup-tide-mode)
   :requires flycheck
@@ -366,10 +357,7 @@
   (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
   
   :hook ((web-mode . tide-setup)
-         (vue-mode . tide-setup)
-         (web-mode . tide-hl-identifier-mode)
-         ;; (before-save . tide-format-before-save)
-         ))
+         (web-mode . tide-hl-identifier-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; E-Lisp
