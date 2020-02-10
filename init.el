@@ -280,11 +280,11 @@
   :config
   (customize-set-variable 'js2-include-node-externs t))
 
-;; TODO - run prettier on save
 (use-package prettier-js
   :ensure t
-  :hook (web-mode vue-mode)
   :init
+  (add-hook 'js2-mode-hook 'prettier-js-mode)
+  (add-hook 'web-mode-hook 'prettier-js-mode)
   (setq prettier-js-args
         '("--trailing-comma"        "none"
           "--bracket-spacing"       "true"
