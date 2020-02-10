@@ -16,6 +16,11 @@
 (size-indication-mode t)
 (linum-mode -1)
 
+(defun my-open-init-file ()
+  "Convenience for editing this file."
+  (interactive)
+  (find-file user-init-file))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get around failing package signatures
 ;; COMMENT OUT BY DEFAULT
@@ -41,14 +46,6 @@
   ;; hide java icon in OSX dock (TODO: doesn't work?)
   (setenv "LEIN_JVM_OPTS" "-Dapple.awt.UIElement=true")
   (set-face-attribute 'default nil :height 120))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; NPM
-;; TODO : use this?
-
-;;(setenv "PATH" (concat (getenv "PATH") ":/home/zaknitsch/.nvm/versions/node/v4.4.7/bin"))
-;;(setq exec-path (append exec-path '("/home/zaknitsch/.nvm/versions/node/v4.4.7/bin")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -279,78 +276,100 @@
 ;; WEB
 
 (use-package js2-mode
-  :ensure t
-  :init 
-  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
-  ;; Better imenu
-  (add-hook 'js2-mode-hook #'js2-imenu-extras-mode))
+  :mode "\\.js\\'"
+  :config
+  (customize-set-variable 'js2-include-node-externs t))
 
-
-(use-package js2-refactor
+;; TODO - run prettier on save
+(use-package prettier-js
   :ensure t
+  :hook (web-mode vue-mode)
   :init
-  (rainbow-delimiters-mode 1)
-  (highlight-parentheses-mode 1)
-  (add-hook 'js2-mode-hook #'js2-refactor-mode)
-  (js2r-add-keybindings-with-prefix "C-c C-r")
-  (define-key js2-mode-map (kbd "C-k") #'js2r-kill)
-  ;; js-mode (which js2 is based on) binds "M-." which conflicts with xref, so
-  ;; unbind it.
-  (define-key js-mode-map (kbd "M-.") nil))
+  (setq prettier-js-args
+        '("--trailing-comma"        "none"
+          "--bracket-spacing"       "true"
+          "--single-quote"          "true"
+          "--no-semi"               "true"
+          "--jsx-single-quote"      "true"
+          "--jsx-bracket-same-line" "true"
+          "--print-width"           "100")))
 
-(use-package xref-js2
-  :ensure t
-  :init
-  (add-hook 'js2-mode-hook
-	    (lambda () (add-hook 'xref-backend-functions #'xref-js2-xref-backend nil t))))
-
-
-(use-package less-css-mode
-  :ensure t)
+(use-package rjsx-mode
+  :defer t)
 
 (use-package web-mode
   :ensure t
   :config
-  (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("/some/react/path/.*\\.js[x]?\\'" . web-mode))
-  (setq web-mode-content-types-alist
-        '(("json" . "/some/path/.*\\.api\\'")
-          ("xml"  . "/other/path/.*\\.api\\'")
-          ("jsx"  . "/some/react/path/.*\\.js[x]?\\'")))
-  (setq web-mode-engines-alist
-        '(("php"    . "\\.phtml\\'")
-          ("blade"  . "\\.blade\\.")))
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-code-indent-offset 2)
   (setq web-mode-css-indent-offset 2)
   :init
   (setq-default indent-tabs-mode nil)
 	(setq-default tab-width 2)
-	(setq indent-line-function 'insert-tab))
+	(setq indent-line-function 'insert-tab)
+  :mode ("\\.html?\\'"
+         "\\.phtml\\'"
+         "\\.php\\'"
+         "\\.inc\\'"
+         "\\.tpl\\'"
+         "\\.jsp\\'"
+         "\\.as[cp]x\\'"
+         "\\.erb\\'"
+         "\\.mustache\\'"
+         "\\.djhtml\\'"
+         "\\.js\\'"
+         "\\.ts\\'"
+         "\\.jsx\\'"
+         "\\.tsx\\'")
+  :config
+  ;; configure jsx-tide checker to run after your default jsx checker
+  (flycheck-add-mode 'javascript-eslint 'web-mode)
+  (flycheck-add-mode 'typescript-tslint 'web-mode))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;; Vue
+
+(use-package vue-mode
+  :ensure t
+  :config
+  (setq mmm-submode-decoration-level 0))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; TypeScript
+;; Tide
 
-;; (use-package tide
-;;   :ensure f
-;;   :config
-;;   (add-to-list 'auto-mode-alist '("\\.ts\\'" . tide-mode))
-;;   :init
-;;   (interactive)
-;;   (tide-setup)
-;;   (flycheck-mode +1)
-;;   (setq flycheck-check-syntax-automatically '(save mode-enabled))
-;;   (eldoc-mode +1)
-;;   (tide-hl-identifier-mode +1)
-;;   ;; company is an optional dependency
-;;   (company-mode +1)
-
-;;   ;; aligns annotation to the right hand side
-;;   (setq company-tooltip-align-annotations t)
-;;   ;; formats the buffer before saving
-;;   (add-hook 'before-save-hook 'tide-format-before-save)
   
-;;   (add-hook 'typescript-mode-hook #'setup-tide-mode))
+(use-package flycheck
+  :ensure t
+  :config
+  (global-flycheck-mode))
+
+(defun setup-tide-mode ()
+    (interactive)
+    (tide-setup)
+    (flycheck-mode +1)
+    ;; (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (eldoc-mode +1)
+    (tide-hl-identifier-mode +1)
+    (company-mode +1))
+
+  
+(use-package tide                       ; https://github.com/ananthakumaran/tide
+  :init
+  (add-hook 'rjsx-mode-hook #'setup-tide-mode)
+  :requires flycheck
+  :config
+  (add-to-list 'company-backends 'company-tide)
+  ;; aligns annotation to the right hand side
+  (setq company-tooltip-align-annotations t)
+
+  (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
+  (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+  
+  :hook ((web-mode . tide-setup)
+         (vue-mode . tide-setup)
+         (web-mode . tide-hl-identifier-mode)
+         ;; (before-save . tide-format-before-save)
+         ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; E-Lisp
@@ -373,7 +392,7 @@
 ;; Custom Plugins
 
 ;; Robot Framework Mode
-(load-file ".emacs.d/plugins/robot-mode.el")
+(load-file "~/.emacs.d/plugins/robot-mode.el")
 (add-to-list 'auto-mode-alist '("\\.robot\\'" . robot-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -408,10 +427,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(js-indent-level 2)
+ '(js-indent-level 4)
+ '(js2-highlight-level 3)
+ '(js2-strict-missing-semi-warning nil)
+ '(js2r-prefer-let-over-var 1)
  '(package-selected-packages
    (quote
-    (sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
+    (typescript-mode vue-mode sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
  '(python-shell-interpreter "python3"))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
