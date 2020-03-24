@@ -285,6 +285,7 @@
   :init
   (add-hook 'vue-mode-hook 'prettier-js-mode)
   (add-hook 'web-mode-hook 'prettier-js-mode)
+  (add-hook 'rjsx-mode-hook 'prettier-js-mode)
   (setq prettier-js-args
         '("--trailing-comma"        "none"
           "--bracket-spacing"       "true"
@@ -295,7 +296,10 @@
           "--print-width"           "100")))
 
 (use-package rjsx-mode
-  :defer t)
+  :ensure t
+  :init
+  ;;(add-hook 'web-mode-hook 'rjsx-mode)
+  )
 
 (use-package web-mode
   :ensure t
@@ -307,6 +311,8 @@
   (setq-default indent-tabs-mode nil)
 	(setq-default tab-width 2)
 	(setq indent-line-function 'insert-tab)
+  (electric-pair-mode 1)
+  (add-to-list 'magic-mode-alist '("import.*react" . rjsx-mode))
   :mode ("\\.html?\\'"
          "\\.phtml\\'"
          "\\.php\\'"
@@ -415,14 +421,18 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(electric-quote-mode t)
  '(js-indent-level 4)
  '(js2-highlight-level 3)
  '(js2-strict-missing-semi-warning nil)
  '(js2r-prefer-let-over-var 1)
+ '(org-export-backends (quote (ascii html icalendar latex md org deck)))
  '(package-selected-packages
    (quote
-    (typescript-mode vue-mode sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
- '(python-shell-interpreter "python3"))
+    (rjsx-mode typescript-mode vue-mode sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
+ '(python-shell-interpreter "python3")
+ '(web-mode-enable-auto-closing t)
+ '(web-mode-enable-comment-interpolation t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
