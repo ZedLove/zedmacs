@@ -16,10 +16,25 @@
 (size-indication-mode t)
 (linum-mode -1)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Generic Helpers
+
 (defun my-open-init-file ()
   "Convenience for editing this file."
   (interactive)
   (find-file user-init-file))
+
+(defun ediff-copy-both-to-C ()
+  "Accept both A and B diffs in an ediff session."
+  (interactive)
+  (ediff-copy-diff ediff-current-difference nil 'C nil
+                   (concat
+                    (ediff-get-region-contents ediff-current-difference 'A ediff-control-buffer)
+                    (ediff-get-region-contents ediff-current-difference 'B ediff-control-buffer))))
+(defun add-d-to-ediff-mode-map ()
+  "Add ’d’ to accept both A and B diffs in ediff session."
+  (define-key ediff-mode-map "d" 'ediff-copy-both-to-C))
+(add-hook 'ediff-keymap-setup-hook 'add-d-to-ediff-mode-map)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; get around failing package signatures
@@ -96,7 +111,9 @@
 (use-package projectile
   :ensure t
   :config
-  (projectile-global-mode)
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode +1)
   (setq projectile-completion-system 'helm)
   (helm-projectile-on))
 
@@ -104,7 +121,7 @@
   :ensure t
   :bind
   (("C-x g"   . magit-status)
-   ("C-x M-g" . magit-dispatch-popup)))
+   ("C-x M-g" . magit-dispatch)))
 
 (use-package magit-gerrit
   :ensure t
@@ -118,7 +135,7 @@
   :ensure t)
 
 (use-package helm
-  :ensure t   
+  :ensure t
   :init
   (require 'helm-config)
   (helm-mode 1)
@@ -126,6 +143,7 @@
   ;; TODO - figure out why this is void
   ;;(helm-push-mark-mode 1)
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
+  (customize-set-variable 'helm-ff-lynx-style-map t)
   (setq helm-scroll-amount 4
 	 helm-ff-smart-completion t
 	 helm-ff-skip-boring-files t)
@@ -275,25 +293,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; WEB
 
+;; include  local node_modules path
+(use-package add-node-modules-path
+  :ensure t
+  :init
+  (eval-after-load
+  'typescript-mode
+  '(add-hook 'typescript-mode-hook #'add-node-modules-path)))
+
 (use-package js2-mode
   :mode "\\.js\\'"
   :config
   (customize-set-variable 'js2-include-node-externs t))
-
-(use-package prettier-js
-  :ensure t
-  :init
-  (add-hook 'vue-mode-hook 'prettier-js-mode)
-  (add-hook 'web-mode-hook 'prettier-js-mode)
-  (add-hook 'rjsx-mode-hook 'prettier-js-mode)
-  (setq prettier-js-args
-        '("--trailing-comma"        "none"
-          "--bracket-spacing"       "true"
-          "--single-quote"          "true"
-          "--no-semi"               "true"
-          "--jsx-single-quote"      "true"
-          "--jsx-bracket-same-line" "true"
-          "--print-width"           "100")))
 
 (use-package rjsx-mode
   :ensure t
@@ -312,7 +323,7 @@
 	(setq-default tab-width 2)
 	(setq indent-line-function 'insert-tab)
   (electric-pair-mode 1)
-  (add-to-list 'magic-mode-alist '("import.*react" . rjsx-mode))
+  ;;  (add-to-list 'magic-mode-alist '("import.*react" . rjsx-mode))
   :mode ("\\.html?\\'"
          "\\.phtml\\'"
          "\\.php\\'"
@@ -323,6 +334,7 @@
          "\\.erb\\'"
          "\\.mustache\\'"
          "\\.djhtml\\'"
+         "\\.json\\’"
          "\\.jsx?\\'"
          "\\.tsx?\\'"
          "\\.vue\\'")
@@ -334,7 +346,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tide
 
-  
+
 (use-package flycheck
   :ensure t
   :config
@@ -344,13 +356,14 @@
     (interactive)
     (tide-setup)
     (flycheck-mode +1)
-    ;; (setq flycheck-check-syntax-automatically '(save mode-enabled))
+    (setq flycheck-check-syntax-automatically '(save mode-enabled))
     (eldoc-mode +1)
     (tide-hl-identifier-mode +1)
     (company-mode +1))
 
   
 (use-package tide     ;; https://github.com/ananthakumaran/tide
+  :ensure t
   :init
   (add-hook 'rjsx-mode-hook #'setup-tide-mode)
   :requires flycheck
@@ -361,6 +374,8 @@
 
   (flycheck-add-next-checker 'javascript-eslint 'javascript-tide 'append)
   (flycheck-add-next-checker 'javascript-eslint 'jsx-tide 'append)
+
+  (define-key tide-mode-map (kbd "M-O") 'tide-organize-imports)
   
   :hook ((web-mode . tide-setup)
          (web-mode . tide-hl-identifier-mode)))
@@ -386,8 +401,9 @@
 ;; Custom Plugins
 
 ;; Robot Framework Mode
-(load-file "~/.emacs.d/plugins/robot-mode.el")
-(add-to-list 'auto-mode-alist '("\\.robot\\'" . robot-mode))
+(when (string= system-name "zakbook-pro.local")
+  (load-file "~/.emacs.d/plugins/robot-mode.el")
+  (add-to-list 'auto-mode-alist '("\\.robot\\'" . robot-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Custom Fns
@@ -422,20 +438,30 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(electric-quote-mode t)
- '(js-indent-level 4)
+ '(helm-ff-lynx-style-map t)
+ '(indent-tabs-mode nil)
+ '(js-indent-level 2)
  '(js2-highlight-level 3)
+ '(js2-include-node-externs t)
  '(js2-strict-missing-semi-warning nil)
  '(js2r-prefer-let-over-var 1)
+ '(magit-diff-highlight-trailing t)
  '(org-export-backends (quote (ascii html icalendar latex md org deck)))
  '(package-selected-packages
    (quote
-    (rjsx-mode typescript-mode vue-mode sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
+    (ng2-mode add-node-modules-path rjsx-mode typescript-mode vue-mode sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
+ '(prettier-js-command "prettier")
  '(python-shell-interpreter "python3")
+ '(web-mode-code-indent-offset 2)
+ '(web-mode-css-indent-offset 4)
  '(web-mode-enable-auto-closing t)
- '(web-mode-enable-comment-interpolation t))
+ '(web-mode-enable-comment-interpolation t)
+ '(web-mode-enable-whitespace-fontification nil)
+ '(web-mode-markup-indent-offset 4))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'downcase-region 'disabled nil)
