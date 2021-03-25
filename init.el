@@ -144,9 +144,9 @@
   ;;(helm-push-mark-mode 1)
   (define-key helm-map (kbd "<tab>") 'helm-execute-persistent-action)
   (customize-set-variable 'helm-ff-lynx-style-map t)
-  (setq helm-scroll-amount 4
-	 helm-ff-smart-completion t
-	 helm-ff-skip-boring-files t)
+  (setq helm-scroll-amount        4
+        helm-ff-smart-completion  t
+        helm-ff-skip-boring-files t)
   :bind (("C-x C-f" . helm-find-files)
 	       ("C-x b"   . helm-buffers-list)
 	       ("C-x C-b" . helm-buffers-list)
@@ -306,12 +306,6 @@
   :config
   (customize-set-variable 'js2-include-node-externs t))
 
-(use-package rjsx-mode
-  :ensure t
-  :init
-  ;;(add-hook 'web-mode-hook 'rjsx-mode)
-  )
-
 (use-package web-mode
   :ensure t
   :config
@@ -342,6 +336,21 @@
   ;; configure jsx-tide checker to run after your default jsx checker
   (flycheck-add-mode 'javascript-eslint 'web-mode)
   (flycheck-add-mode 'typescript-tslint 'web-mode))
+
+;;;;;;;;;;;;;;;;;;
+;; Angular Stuff
+
+(use-package ng2-mode
+  :ensure t)
+
+;;;;;;;;;;;;;;;;;;
+;; React Stuff
+
+(use-package rjsx-mode
+  :ensure t
+  :init
+  ;;(add-hook 'web-mode-hook 'rjsx-mode)
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Tide
@@ -449,7 +458,7 @@
  '(org-export-backends (quote (ascii html icalendar latex md org deck)))
  '(package-selected-packages
    (quote
-    (ng2-mode add-node-modules-path rjsx-mode typescript-mode vue-mode sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
+    (dockerfile-mode gitlab-ci-mode n2-mode ng2-mode add-node-modules-path rjsx-mode typescript-mode vue-mode sml-mode protobuf-mode go-mode go clojure-mode cider elpy tide bracketed-paste racket-mode geiser aggressive-indent ac-cider ace-window try zenburn-theme zenburn helm-swoop elm-mode flycheck psc-ide auto-highlight-symbol less-css-mode use-package undo-tree rainbow-delimiters purescript-mode projectile paredit markdown-preview-mode markdown-mode+ magit highlight-parentheses helm-ag golden-ratio company-statistics)))
  '(prettier-js-command "prettier")
  '(python-shell-interpreter "python3")
  '(web-mode-code-indent-offset 2)
